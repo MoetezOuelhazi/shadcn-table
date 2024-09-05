@@ -10,17 +10,28 @@ import { Shell } from "@/components/shell"
 
 import { TasksTable } from "./_components/tasks-table"
 import { TasksTableProvider } from "./_components/tasks-table-provider"
-import { getTasks } from "./_lib/queries"
+import {getAddresses, getTasks} from "./_lib/queries"
 import { searchParamsSchema } from "./_lib/validations"
+import {DeliveryAddressList} from "@/app/_components/delivery-address-list";
 
 export interface IndexPageProps {
   searchParams: SearchParams
 }
 
+export interface DeliveryAddressCardProps {
+    id: string;
+    country: string;
+    full_address?:string;
+    city: string;
+    street: string;
+    zipCode: string;
+}
+
 export default async function IndexPage({ searchParams }: IndexPageProps) {
   const search = searchParamsSchema.parse(searchParams)
+    const addressesPromise = getAddresses(search);
 
-  const tasksPromise = getTasks(search)
+    const tasksPromise = getTasks(search)
 
   return (
     <Shell className="gap-2">
@@ -28,19 +39,6 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
        * The `TasksTableProvider` is use to enable some feature flags for the `TasksTable` component.
        * Feel free to remove this, as it's not required for the `TasksTable` component to work.
        */}
-      <TasksTableProvider>
-        {/**
-         * The `DateRangePicker` component is used to render the date range picker UI.
-         * It is used to filter the tasks based on the selected date range it was created at.
-         * The business logic for filtering the tasks based on the selected date range is handled inside the component.
-         */}
-        <React.Suspense fallback={<Skeleton className="h-7 w-52" />}>
-          <DateRangePicker
-            triggerSize="sm"
-            triggerClassName="ml-auto w-56 sm:w-60"
-            align="end"
-          />
-        </React.Suspense>
         <React.Suspense
           fallback={
             <DataTableSkeleton
@@ -56,9 +54,10 @@ export default async function IndexPage({ searchParams }: IndexPageProps) {
            * Passing promises and consuming them using React.use for triggering the suspense fallback.
            * @see https://react.dev/reference/react/use
            */}
-          <TasksTable tasksPromise={tasksPromise} />
+          <DeliveryAddressList addressesPromise={addressesPromise} />
+
+          {/*<TasksTable tasksPromise={tasksPromise}/>*/}
         </React.Suspense>
-      </TasksTableProvider>
     </Shell>
   )
 }

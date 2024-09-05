@@ -5,17 +5,33 @@ export const searchParamsSchema = z.object({
   page: z.coerce.number().default(1),
   per_page: z.coerce.number().default(10),
   sort: z.string().optional(),
-  title: z.string().optional(),
-  status: z.string().optional(),
-  priority: z.string().optional(),
   from: z.string().optional(),
   to: z.string().optional(),
   operator: z.enum(["and", "or"]).optional(),
 })
 
-export const getTasksSchema = searchParamsSchema
+export const tasksSearchParamsSchema = searchParamsSchema.extend({
+    title: z.string().optional(),
+    status: z.string().optional(),
+    priority: z.string().optional(),
+    })
+
+export const addressesSearchParamsSchema = searchParamsSchema.extend({
+    country: z.string().optional(),
+    full_address: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zipCode: z.string().optional(),
+    })
+
+
+export const getTasksSchema = tasksSearchParamsSchema
 
 export type GetTasksSchema = z.infer<typeof getTasksSchema>
+
+export const getAddressesSchema = addressesSearchParamsSchema
+
+export type GetAddressesSchema = z.infer<typeof getAddressesSchema>
 
 export const createTaskSchema = z.object({
   title: z.string(),
